@@ -12,25 +12,15 @@ CREATE TABLE IF NOT EXISTS Clients (
     date_join DATE
 );
 
--- יצירת טבלת Farms
 CREATE TABLE IF NOT EXISTS Farms (
     id INT PRIMARY KEY,
     name VARCHAR(255),
     address VARCHAR(255),
     phone_number VARCHAR(50),
-    specialty VARCHAR(255)
+    specialty VARCHAR(255),
+    kosher_expiry_date DATE
 );
 
--- יצירת טבלת Kosher_certificate
-CREATE TABLE IF NOT EXISTS Kosher_certificate (
-    Farms_id INT PRIMARY KEY,
-    expiry_date DATE,
-    FOREIGN KEY (Farms_id) REFERENCES Farms(id)
-);
-
----
-
--- יצירת טבלת Item
 CREATE TABLE IF NOT EXISTS Item (
     id INT PRIMARY KEY,
     name VARCHAR(255),
@@ -41,51 +31,56 @@ CREATE TABLE IF NOT EXISTS Item (
     FOREIGN KEY (farm_id) REFERENCES Farms(id)
 );
 
--- יצירת טבלת Order
--- הערה: משתמשים בגרשיים (`) כדי להתגבר על מילת המפתח השמורה 'ORDER' ב-SQL.
-CREATE TABLE IF NOT EXISTS `Order` (
+CREATE TABLE IF NOT EXISTS Orders (
     id INT PRIMARY KEY,
     client_id INT,
     date_created DATETIME,
-    status VARCHAR(50),
-    supply_dated DATE,
+    status ENUM('PickedUp', 'Paid', 'Created', 'Cancelled'),
+    supply_date DATE,
+    FOREIGN KEY (client_id) REFERENCES Clients(id)
+);
+
+CREATE TABLE IF NOT EXISTS OrderItems (
+	order_id INT,
     item_id INT,
-    FOREIGN KEY (client_id) REFERENCES Clients(id),
+    amount INT,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (item_id) REFERENCES Item(id)
 );
 
--- יצירת טבלת Delivery
-CREATE TABLE IF NOT EXISTS Delivery (
-    delivery_address VARCHAR(255),
-    Order_id INT PRIMARY KEY,
-    FOREIGN KEY (Order_id) REFERENCES `Order`(id)
-);
-
--- יצירת טבלת Carrier
 CREATE TABLE IF NOT EXISTS Carrier (
     id INT PRIMARY KEY,
-    delivery_address VARCHAR(255),
     name VARCHAR(255),
     phone VARCHAR(50),
     service_area VARCHAR(255)
 );
 
 
--- יצירת טבלת Pickup
-CREATE TABLE IF NOT EXISTS Pickup (
+CREATE TABLE IF NOT EXISTS PickupPoint (
     id INT PRIMARY KEY,
-    Order_id INT,
     name VARCHAR(255),
-    address VARCHAR(255),
-    FOREIGN KEY (Order_id) REFERENCES `Order`(id)
+    address VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS Pickup (
+    order_id INT PRIMARY KEY,
+    pickuppoint_id INT,
+	FOREIGN KEY (Order_id) REFERENCES Orders(id),
+    FOREIGN KEY (pickuppoint_id) REFERENCES pickuppoint(id)
+);
+
+CREATE TABLE IF NOT EXISTS Delivery (
+    delivery_address VARCHAR(255),
+    Order_id INT PRIMARY KEY,
+    carrier_id INT,
+    FOREIGN KEY (carrier_id) REFERENCES carrier(id),
+    FOREIGN KEY (Order_id) REFERENCES Orders(id)
+);
 CREATE TABLE OpeningHours (
-    pickup_id INT,             
+    pickuppoint_id INT,             
     day_of_week VARCHAR(10),     
     open_time TIME,            
     close_time TIME,            	
-    FOREIGN KEY (pickup_id) REFERENCES Pickup(id)
+    FOREIGN KEY (pickuppoint_id) REFERENCES pickuppoint(id)
 );
 
--- Note: IDs are manually inserted here. If you use AUTO_INCREMENT, you can omit the ID column in the INSERT statement.
