@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS Orders (
     id INT PRIMARY KEY,
     client_id INT,
     date_created DATETIME,
-    status ENUM('PickedUp', 'Paid', 'Created', 'Cancelled'),
+    status VARCHAR(20) CHECK (status IN ('PickedUp', 'Paid', 'Created', 'Cancelled')),
     supply_date DATE,
     FOREIGN KEY (client_id) REFERENCES Clients(id)
 );

@@ -8,7 +8,7 @@ SELECT clients.id, CONCAT(clients.FirstName, " ", clients.LastName) AS "Full Nam
 
 -- Q2
 SELECT 
-    Item.name AS item_name, 
+    Item.name AS Item_name, 
     Farms.id AS farm_id, 
     Item.category
 FROM Item
